@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+
+  mongodb:
+    container_name: "mongo_db"
+    image: "bitnami/mongodb:latest"
+    environment:
+      MONGODB_USERNAME: mongo
+      MONGODB_PASSWORD: p7oyGer21gfNix6LMgZr
+      MONGODB_ROOT_PASSWORD: p7oyGer21gfNix6LMgZr
+      MONGODB_DATABASE: weather_forecast
+    ports:
+      - "0.0.0.0:27017:27017"
+    volumes:
+      - ./mongodb/data:/mongodb/data
+
+  cadastro_app:
+    container_name: "cadastro_app"
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+    ports:
+      - "0.0.0.0:8000:8000"
+    depends_on:
+      - mongodb

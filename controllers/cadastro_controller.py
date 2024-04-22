@@ -1,5 +1,5 @@
-from models.cadastro_model import CadastroHttpResponse
 from factory.factory import ServiceFactory
+from models.cadastro_model import CadastroHttpResponse
 
 
 class CadastroController:

@@ -1,5 +1,5 @@
-from models.cadastro_model import CadastroHttpResponse
 from fastapi import HTTPException
+from models.cadastro_model import CadastroHttpResponse
 
 
 class CadastroService:

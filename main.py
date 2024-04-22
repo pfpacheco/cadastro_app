@@ -1,6 +1,6 @@
+from fastapi import FastAPI
 from controllers.cadastro_controller import CadastroController
 from models.cadastro_model import CadastroHttpRequest, CadastroHttpResponse
-from fastapi import FastAPI
 
 
 app = FastAPI()
