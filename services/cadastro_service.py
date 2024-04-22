@@ -1,22 +1,21 @@
-from fastapi import HTTPException
 from models.cadastro_model import CadastroHttpResponse
+from repositories.cadastro_repository import CadastroRepositorio
 
 
 class CadastroService:
 
     def __init__(self):
         self.response = None
+        self.cadastro_repository = CadastroRepositorio()
 
     async def add_cadastro(self, cadastro) -> CadastroHttpResponse:
         try:
-            if cadastro:
+            if cadastro["cnu"]:
+                cadastro = await self.cadastro_repository.save(cadastro=cadastro)
                 self.response = CadastroHttpResponse(
-                    code=200,
-                    status="OK",
+                    status_code=200,
                     body=cadastro
                 )
-
-        except HTTPException:
-            raise HTTPException(status_code=500, detail="INTERNAL_SERVER_ERROR")
-
+        except Exception as error:
+            raise error
         return self.response

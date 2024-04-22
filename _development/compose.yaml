@@ -2,24 +2,27 @@ version: "3.8"
 
 services:
 
-  mongodb:
-    container_name: "mongo_db"
-    image: "bitnami/mongodb:latest"
+  db:
+    container_name: "db"
+    image: "bitnami/postgresql:latest"
     environment:
-      MONGODB_USERNAME: mongo
-      MONGODB_PASSWORD: p7oyGer21gfNix6LMgZr
-      MONGODB_ROOT_PASSWORD: p7oyGer21gfNix6LMgZr
-      MONGODB_DATABASE: weather_forecast
+      TZ: "America/Sao_Paulo"
+      POSTGRESQL_TIMEZONE: "America/Sao_Paulo"
+      POSTGRESQL_USERNAME: admin
+      POSTGRESQL_PASSWORD: p7oyGer21gfNix6LMgZr
+      POSTGRESQL_DATABASE: cadastro_app
     ports:
-      - "0.0.0.0:27017:27017"
+      - "0.0.0.0:5432:5432"
+    volumes:
+      - ./_development/postgresql:/var/lib/postgresql
 
-  cadastro_app:
-    container_name: "cadastro_app"
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
-    ports:
-      - "0.0.0.0:8000:8000"
-    depends_on:
-      - mongodb
+#  cadastro_app:
+#    container_name: "cadastro_app"
+#    build:
+#      context: ..
+#      dockerfile: Dockerfile
+#    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+#    ports:
+#      - "0.0.0.0:8000:8000"
+#    depends_on:
+#      - db

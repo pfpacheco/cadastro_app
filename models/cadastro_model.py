@@ -1,4 +1,3 @@
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
@@ -15,16 +14,14 @@ class CadastroHttpRequest(BaseModel):
 
 
 class CadastroBodyResponse(BaseModel):
-    id: UUID
+    id: str
     name: str
     cnu: str
     description: str
-    createdAt: datetime
-    updatedAt: Optional[datetime]
+    created_at: datetime
+    updated_at: Optional[datetime]
 
 
 class CadastroHttpResponse(BaseModel):
-
-    code: int
-    status: str
+    status_code: int
     body: Optional[CadastroBodyResponse]
