@@ -12,8 +12,6 @@ services:
       MONGODB_DATABASE: weather_forecast
     ports:
       - "0.0.0.0:27017:27017"
-    volumes:
-      - ./mongodb/data:/mongodb/data
 
   cadastro_app:
     container_name: "cadastro_app"
