@@ -15,7 +15,6 @@ class CadastroService:
         if cadastro:
             cadastro = await self.cadastro_repository.save(cadastro=cadastro)
             self.response = CadastroHttpResponse(
-                status_code=200,
                 body=cadastro
             )
         else:

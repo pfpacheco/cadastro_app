@@ -23,5 +23,4 @@ class CadastroBodyResponse(BaseModel):
 
 
 class CadastroHttpResponse(BaseModel):
-    status_code: int
     body: Optional[CadastroBodyResponse]
