@@ -2,9 +2,12 @@ from decouple import config
 from datetime import datetime
 from uuid import uuid4
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import create_engine
-from sqlalchemy.exc import SQLAlchemyError
+
+from fastapi import status
+from fastapi.exceptions import HTTPException
 
 from models.cadastro_model import CadastroBodyResponse
 from schemas.cadastro_schema import Cadastro
@@ -31,11 +34,11 @@ class CadastroRepositorio:
             )
             session.add(self.schema)
             session.commit()
-            self.body_response = await self.find_by_cnu(cnu=cadastro["cnu"])
-        except SQLAlchemyError as error:
-            raise error
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": error.__cause__.__str__()})
         finally:
-            session.close()
+            self.body_response = await self.find_by_cnu(cnu=cadastro["cnu"])
         return self.body_response
 
     async def find_by_cnu(self, cnu: str) -> CadastroBodyResponse:
@@ -54,8 +57,6 @@ class CadastroRepositorio:
                     )
                 else:
                     raise "Not found"
-        except SQLAlchemyError as error:
-            raise error
-        finally:
-            session.close()
+        except HTTPException as error:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": "Entity not found"})
         return self.body_response
