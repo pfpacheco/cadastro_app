@@ -28,7 +28,7 @@ class CadastroRepository:
         self.session = sessionmaker(bind=self.engine)
         self.body_response = None
 
-    async def save(self, cadastro) -> CadastroResponseBody:
+    async def save(self, entity) -> CadastroResponseBody:
         """
         Save a Cadastro record in the database.
 
@@ -43,15 +43,12 @@ class CadastroRepository:
         """
         try:
             session = self.session()
-
-            self.schema = Cadastro(id=uuid4(), name=cadastro["name"], cnu=cadastro["cnu"],
-                                   description=cadastro["description"],created_at=datetime.now())
-            session.add(self.schema)
+            session.add(entity)
             session.commit()
-            session.refresh(self.schema)
-            self.body_response = CadastroResponseBody(id=str(self.schema.id), name=self.schema.name, cnu=self.schema.cnu,
-                                                      description=self.schema.description,
-                                                      created_at=self.schema.created_at,updated_at=None)
+            session.refresh(entity)
+            self.body_response = CadastroResponseBody(id=str(entity.id), name=entity.name, cnu=entity.cnu,
+                                                      description=entity.description,
+                                                      created_at=entity.created_at,updated_at=None)
         except IntegrityError as error:
             session.rollback()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": f"Integrity error {error}"})
