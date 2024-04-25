@@ -1,8 +1,8 @@
 from fastapi import FastAPI, status
 from fastapi.exceptions import HTTPException
 
-from controllers.cadastro_controller import CadastroController
-from models.cadastro_model import CadastroHttpRequest, CadastroHttpResponse
+from src.controllers.cadastro_controller import CadastroController
+from src.models.cadastro_model import CadastroHttpRequest, CadastroHttpResponse
 
 
 app = FastAPI()

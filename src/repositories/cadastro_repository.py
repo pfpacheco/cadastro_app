@@ -1,7 +1,3 @@
-from decouple import config
-from datetime import datetime
-from uuid import uuid4
-
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import create_engine
@@ -9,8 +5,9 @@ from sqlalchemy.engine import create_engine
 from fastapi import status
 from fastapi.exceptions import HTTPException
 
-from models.cadastro_model import CadastroResponseBody
-from schemas.cadastro_schema import Cadastro
+from src.schemas.cadastro_schema import Cadastro
+from src.models.cadastro_model import CadastroResponseBody
+from src.repositories.repository_utils.create_session import CreateSession
 
 class CadastroRepository:
     """
@@ -23,9 +20,8 @@ class CadastroRepository:
 
         This class manages database interactions for Cadastro objects.
         """
-        self.db_url = config("POSTGRES_URL")
-        self.engine = create_engine(url=self.db_url)
-        self.session = sessionmaker(bind=self.engine)
+        self.create_session = CreateSession()
+        self.session = self.create_session.get_new_session()
         self.body_response = None
 
     async def save(self, entity) -> CadastroResponseBody:
@@ -42,18 +38,24 @@ class CadastroRepository:
             HTTPException: If there's an IntegrityError or if the provided CNU is empty.
         """
         try:
-            session = self.session()
-            session.add(entity)
-            session.commit()
-            session.refresh(entity)
+            self.session.add(entity)
+            self.session.commit()
+            self.session.refresh(entity)
+        except IntegrityError as error:
+            self.session.rollback()
+            raise HTTPException(status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+                                detail={"status_code": status.HTTP_428_PRECONDITION_REQUIRED,
+                                        "error": f"{error.__cause__}"})
+        try:
             self.body_response = CadastroResponseBody(id=str(entity.id), name=entity.name, cnu=entity.cnu,
                                                       description=entity.description,
                                                       created_at=entity.created_at,updated_at=None)
-        except IntegrityError as error:
-            session.rollback()
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": f"Integrity error {error}"})
+        except HTTPException as error:
+            raise HTTPException(status_code=status.HTTP_417_EXPECTATION_FAILED,
+                                detail={"status_code": status.HTTP_417_EXPECTATION_FAILED,
+                                        "error": f"{error.__cause__}"})
         finally:
-            session.close()
+            self.session.close()
         return self.body_response
 
     async def find_by_cnu(self, cnu: str) -> CadastroResponseBody:
@@ -70,17 +72,24 @@ class CadastroRepository:
             HTTPException: If the provided CNU is empty or if the Cadastro with the provided CNU is not found.
         """
         try:
-            session = self.session()
-            if cnu is not None:
-                rows = session.query(Cadastro).filter_by(cnu=cnu).first()
-                if rows:
+            if cnu != "":
+                cadastro = self.session.query(Cadastro).filter_by(cnu=cnu).first()
+                if cadastro is not None:
                     self.body_response = CadastroResponseBody(id=str(rows.id), name=rows.name, cnu=rows.cnu,
                                                               description=rows.description,
                                                               created_at=rows.created_at, updated_at=None)
                 else:
-                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Cadastro not found!"})
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                        detail={"status_code": status.HTTP_404_NOT_FOUND,
+                                                "error": "Cadastro not found!"})
             else:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "CNU is empty"})
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail={"status_code": status.HTTP_404_NOT_FOUND,
+                                            "error": "CNU is empty!"})
         except HTTPException as error:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Entity not found"})
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail={"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                        "error": f"{error.__cause__}"})
+        finally:
+            self.session.close()
         return self.body_response

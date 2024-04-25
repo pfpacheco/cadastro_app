@@ -1,5 +1,5 @@
-from factory.factory import ServiceFactory
-from models.cadastro_model import CadastroHttpResponse
+from src.factory.factory import ServiceFactory
+from src.models.cadastro_model import CadastroHttpResponse
 
 
 class CadastroController:
@@ -18,4 +18,4 @@ class CadastroController:
         Returns:
             CadastroHttpResponse: The HTTP response containing the saved Cadastro.
         """
-        return await ServiceFactory.get_service(name="cadastro").add_cadastro(cadastro=cadastro)
+        return await ServiceFactory.get_service(service_name="cadastro").add_cadastro(cadastro=cadastro)

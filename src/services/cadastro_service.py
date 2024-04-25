@@ -2,9 +2,9 @@ from uuid import uuid4
 from datetime import datetime
 from fastapi import status, HTTPException
 
-from models.cadastro_model import CadastroHttpResponse
-from repositories.cadastro_repository import CadastroRepository
-from schemas.cadastro_schema import Cadastro
+from src.models.cadastro_model import CadastroHttpResponse
+from src.repositories.cadastro_repository import CadastroRepository
+from src.schemas.cadastro_schema import Cadastro
 
 
 class CadastroService:
@@ -35,7 +35,7 @@ class CadastroService:
         if not cadastro:
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
-                detail={"error": "Entity is empty"}
+                detail={"error": "Entity must be valid"}
             )
         entity = Cadastro(id=uuid4(), name=cadastro["name"], cnu=cadastro["cnu"], description=cadastro["description"],
                           created_at=datetime.now())

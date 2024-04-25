@@ -1,4 +1,4 @@
-from services.cadastro_service import CadastroService
+from src.services.cadastro_service import CadastroService
 
 
 class ServiceFactory:
@@ -7,7 +7,7 @@ class ServiceFactory:
     """
 
     @staticmethod
-    def get_service(name):
+    def get_service(service_name):
         """
         Get an instance of the requested service.
 
@@ -17,5 +17,5 @@ class ServiceFactory:
         Returns:
             object: An instance of the requested service, or None if the name is not recognized.
         """
-        if name == "cadastro":
+        if service_name == "cadastro":
             return CadastroService()
