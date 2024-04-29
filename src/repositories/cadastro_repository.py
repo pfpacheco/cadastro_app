@@ -1,13 +1,12 @@
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.engine import create_engine
 
 from fastapi import status
 from fastapi.exceptions import HTTPException
 
+from src.database.database import Database
 from src.schemas.cadastro_schema import Cadastro
 from src.models.cadastro_model import CadastroResponseBody
-from src.repositories.repository_utils.create_session import CreateSession
+
 
 class CadastroRepository:
     """
@@ -20,9 +19,9 @@ class CadastroRepository:
 
         This class manages database interactions for Cadastro objects.
         """
-        self.create_session = CreateSession()
-        self.session = self.create_session.get_new_session()
+        self.database = Database()
         self.body_response = None
+        self.session = self.database.get_db()
 
     async def save(self, entity) -> CadastroResponseBody:
         """
@@ -36,6 +35,7 @@ class CadastroRepository:
 
         Raises:
             HTTPException: If there's an IntegrityError or if the provided CNU is empty.
+            :param entity:
         """
         try:
             self.session.add(entity)
@@ -75,9 +75,9 @@ class CadastroRepository:
             if cnu != "":
                 cadastro = self.session.query(Cadastro).filter_by(cnu=cnu).first()
                 if cadastro is not None:
-                    self.body_response = CadastroResponseBody(id=str(rows.id), name=rows.name, cnu=rows.cnu,
-                                                              description=rows.description,
-                                                              created_at=rows.created_at, updated_at=None)
+                    self.body_response = CadastroResponseBody(id=str(cadastro.id), name=cadastro.name, cnu=cadastro.cnu,
+                                                              description=cadastro.description,
+                                                              created_at=cadastro.created_at, updated_at=None)
                 else:
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                         detail={"status_code": status.HTTP_404_NOT_FOUND,

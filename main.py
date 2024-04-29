@@ -15,4 +15,3 @@ async def add_cadastro(req: CadastroHttpRequest) -> CadastroHttpResponse:
         return await cadastro_controller.add_cadastro(cadastro=req.body.dict())
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": "Request not valid!"})
-
