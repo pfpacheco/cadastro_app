@@ -1,5 +1,5 @@
 fastapi~=0.110.2
-pydantic~=2.7.0
+pydantic~=2.7.1
 sqlalchemy~=2.0.29
 python-decouple~=3.8
 gunicorn~=22.0.0

@@ -16,13 +16,13 @@ services:
     volumes:
       - ./_development/postgresql:/var/lib/postgresql
 
-#  cadastro_app:
-#    container_name: "cadastro_app"
-#    build:
-#      context: ..
-#      dockerfile: Dockerfile
-#    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
-#    ports:
-#      - "0.0.0.0:8000:8000"
-#    depends_on:
-#      - db
+  app:
+    container_name: "app"
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+    ports:
+      - "0.0.0.0:8000:8000"
+    depends_on:
+      - db

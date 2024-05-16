@@ -12,9 +12,9 @@ class Cadastro(Base):
     Represents a Cadastro entity in the database.
     """
 
-    __tablename__ = "cadastro"
+    __tablename__ = "tb_cadastro"
 
-    id = Column(UUID, primary_key=True)
+    uuid = Column(UUID, primary_key=True)
     name = Column(String, nullable=False)
     cnu = Column(String(20), unique=True, nullable=False)  # Assuming 20 is the maximum length
     description = Column(String, nullable=False)

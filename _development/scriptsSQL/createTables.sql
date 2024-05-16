@@ -1,5 +1,5 @@
-create table cadastro(
-    id uuid primary key default gen_random_uuid(),
+create table tb_cadastro(
+    uuid uuid primary key default gen_random_uuid(),
     name text not null,
     cnu char(20) not null,
     description text not null,
