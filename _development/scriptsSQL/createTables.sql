@@ -1,4 +1,4 @@
-create table tb_cadastro(
+create table t_cadastro(
     uuid uuid primary key default gen_random_uuid(),
     name text not null,
     cnu char(20) not null,

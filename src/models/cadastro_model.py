@@ -22,14 +22,14 @@ class CadastroResponseBody(BaseModel):
     Represents the response body for a Cadastro.
 
     Attributes:
-        id (str): The unique identifier of the Cadastro.
+        uuid (str): The unique identifier of the Cadastro.
         name (str): The name of the Cadastro.
         cnu (str): The CNU (Customer Number) of the Cadastro.
         description (str): The description of the Cadastro.
         created_at (datetime): The timestamp when the Cadastro was created.
         updated_at (Optional[datetime]): The timestamp when the Cadastro was last updated (optional).
     """
-    id: str
+    uuid: str
     name: str
     cnu: str
     description: str

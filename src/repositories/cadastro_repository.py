@@ -1,9 +1,13 @@
 from sqlalchemy.exc import IntegrityError
 
+from decouple import config
+
 from fastapi import status
 from fastapi.exceptions import HTTPException
 
-from src.database.database import Database
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from src.schemas.cadastro_schema import Cadastro
 from src.models.cadastro_model import CadastroResponseBody
 
@@ -19,9 +23,11 @@ class CadastroRepository:
 
         This class manages database interactions for Cadastro objects.
         """
-        self.database = Database()
-        self.body_response = None
-        self.session = self.database.get_db()
+
+        self.database_url = config("POSTGRES_URL")
+        self.engine = create_engine(self.database_url)
+        self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        self.body_response = {}
 
     async def save(self, entity) -> CadastroResponseBody:
         """
@@ -37,25 +43,27 @@ class CadastroRepository:
             HTTPException: If there's an IntegrityError or if the provided CNU is empty.
             :param entity:
         """
+        session = self.session_local()
         try:
-            self.session.add(entity)
-            self.session.commit()
-            self.session.refresh(entity)
+
+            session.add(entity)
+            session.commit()
+            session.refresh(entity)
         except IntegrityError as error:
-            self.session.rollback()
-            raise HTTPException(status_code=status.HTTP_428_PRECONDITION_REQUIRED,
-                                detail={"status_code": status.HTTP_428_PRECONDITION_REQUIRED,
+            session.rollback()
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail={"status_code": status.HTTP_422_UNPROCESSABLE_ENTITY,
                                         "error": f"{error.__cause__}"})
         try:
-            self.body_response = CadastroResponseBody(id=str(entity.id), name=entity.name, cnu=entity.cnu,
+            self.body_response = CadastroResponseBody(uuid=str(entity.uuid), name=entity.name, cnu=entity.cnu,
                                                       description=entity.description,
-                                                      created_at=entity.created_at,updated_at=None)
+                                                      created_at=entity.created_at, updated_at=None)
         except HTTPException as error:
             raise HTTPException(status_code=status.HTTP_417_EXPECTATION_FAILED,
                                 detail={"status_code": status.HTTP_417_EXPECTATION_FAILED,
                                         "error": f"{error.__cause__}"})
         finally:
-            self.session.close()
+            session.close()
         return self.body_response
 
     async def find_by_cnu(self, cnu: str) -> CadastroResponseBody:
@@ -71,11 +79,12 @@ class CadastroRepository:
         Raises:
             HTTPException: If the provided CNU is empty or if the Cadastro with the provided CNU is not found.
         """
+        session = self.session_local()
         try:
             if cnu != "":
-                cadastro = self.session.query(Cadastro).filter_by(cnu=cnu).first()
+                cadastro = session.query(Cadastro).filter_by(cnu=cnu).first()
                 if cadastro is not None:
-                    self.body_response = CadastroResponseBody(id=str(cadastro.id), name=cadastro.name, cnu=cadastro.cnu,
+                    self.body_response = CadastroResponseBody(uuid=str(cadastro.uuid), name=cadastro.name, cnu=cadastro.cnu,
                                                               description=cadastro.description,
                                                               created_at=cadastro.created_at, updated_at=None)
                 else:
@@ -91,5 +100,5 @@ class CadastroRepository:
                                 detail={"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
                                         "error": f"{error.__cause__}"})
         finally:
-            self.session.close()
+            session.close()
         return self.body_response

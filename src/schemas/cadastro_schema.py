@@ -12,7 +12,7 @@ class Cadastro(Base):
     Represents a Cadastro entity in the database.
     """
 
-    __tablename__ = "tb_cadastro"
+    __tablename__ = "t_cadastro"
 
     uuid = Column(UUID, primary_key=True)
     name = Column(String, nullable=False)

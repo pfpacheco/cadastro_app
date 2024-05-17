@@ -37,7 +37,7 @@ class CadastroService:
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
                 detail={"error": "Entity must be valid"}
             )
-        entity = Cadastro(id=uuid4(), name=cadastro["name"], cnu=cadastro["cnu"], description=cadastro["description"],
+        entity = Cadastro(uuid=uuid4(), name=cadastro["name"], cnu=cadastro["cnu"], description=cadastro["description"],
                           created_at=datetime.now())
 
         saved_cadastro = await self.cadastro_repository.save(entity=entity)
