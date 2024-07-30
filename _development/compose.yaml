@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+
+  db:
+    container_name: "db"
+    image: "bitnami/postgresql:latest"
+    environment:
+      TZ: "America/Sao_Paulo"
+      POSTGRESQL_TIMEZONE: "America/Sao_Paulo"
+      POSTGRESQL_USERNAME: admin
+      POSTGRESQL_PASSWORD: p7oyGer21gfNix6LMgZr
+      POSTGRESQL_DATABASE: cadastro_app
+    ports:
+      - "0.0.0.0:5432:5432"
+    volumes:
+      - ./_development/postgresql:/var/lib/postgresql
+
+#  app:
+#    container_name: "app"
+#    build:
+#      context: ..
+#      dockerfile: Dockerfile
+#    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+#    ports:
+#      - "0.0.0.0:8000:8000"
+#    depends_on:
+#      - db
